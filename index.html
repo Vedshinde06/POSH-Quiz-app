@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POSH Awareness Quiz 🛡️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <audio id="bgMusic"       src="sounds/bg-music.mp3" loop preload="auto"></audio>
+  <audio id="correctSound"  src="sounds/correct.mp3"  preload="auto"></audio>
+  <audio id="wrongSound"    src="sounds/wrong.mp3"    preload="auto"></audio>
+  <audio id="applauseSound" src="sounds/applause.mp3" preload="auto"></audio>
+
+  <style>
+    :root {
+      --red:          #4A154B;
+      --red-dark:     #350d36;
+      --bg-warm:      #F8F8FA;
+      --gray-line:    #E0E0E0;
+      --gray-text:    #555555;
+      --peach:        #9D7A9E;
+      --bg2:          #F0F0F5;
+      --gold:         #D4AF37;
+      --pink:         #EAB8E6;
+      --green:        #0E4B07;
+      --green-light:  #1a7a0f;
+      --white:        #ffffff;
+      --text-dark:    #1A1A1A;
+      --card-shadow:  0 8px 40px rgba(74, 21, 75, 0.10), 0 2px 8px rgba(0,0,0,0.06);
+      --card-shadow-lg: 0 16px 64px rgba(74, 21, 75, 0.14), 0 4px 16px rgba(0,0,0,0.08);
+      --r:            16px;
+      --r-sm:         10px;
+      --transition:   0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(145deg, var(--bg-warm) 0%, var(--bg2) 60%, #E8E8EF 100%);
+      min-height: 100vh;
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(74,21,75,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #app { position: relative; z-index: 1; width: 100%; }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: clamp(16px, 4vw, 32px) clamp(12px, 4vw, 16px) clamp(64px, 10vw, 80px);
+      animation: screenIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .screen.active { display: block; }
+
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(32px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .col { width: 100%; max-width: 620px; margin: 0 auto; }
+
+    .logo-area { text-align: center; margin-bottom: 20px; padding: 0 16px; }
+    .logo-area img { max-width: 160px; max-height: 56px; object-fit: contain; }
+    .logo-fallback { display: none; font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--red); }
+    .logo-dot { display: inline-block; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; margin-left: 4px; }
+
+    .card {
+      background: var(--white); border-radius: var(--r); box-shadow: var(--card-shadow);
+      padding: clamp(22px, 6vw, 40px) clamp(18px, 5vw, 40px); position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--peach), var(--gold));
+    }
+
+    .eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 5.5vw, 2.8rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.2rem, 4vw, 1.65rem); font-weight: 700; line-height: 1.25; margin-bottom: 8px; }
+    .lead { font-size: 1rem; color: var(--gray-text); line-height: 1.7; margin-bottom: 28px; }
+    .label-sm { font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-text); display: block; margin-bottom: 8px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition); width: 100%; padding: 15px 28px; position: relative; overflow: hidden;
+    }
+    .btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background var(--transition); }
+    .btn:hover::after { background: rgba(255,255,255,0.08); }
+
+    .btn-primary { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: var(--white); box-shadow: 0 6px 20px rgba(74,21,75,0.32); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(53,13,54,0.40); }
+    .btn-primary:disabled { opacity: 0.36; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), #d4a029); color: #3a2800; box-shadow: 0 6px 20px rgba(212,175,55,0.38); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-field { width: 100%; padding: 13px 16px; border: 1.5px solid var(--gray-line); border-radius: var(--r-sm); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: all var(--transition); }
+    .form-field:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(74,21,75,0.10); }
+    .form-field.error { border-color: var(--red) !important; }
+    .err-msg { font-size: 0.72rem; color: var(--red); margin-top: 6px; display: none; }
+    .err-msg.show { display: block; }
+
+    /* HUD */
+    .hud { display: flex; align-items: center; gap: 16px; background: var(--white); border-radius: 14px; padding: 14px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 18px; flex-wrap: wrap; }
+    .hud-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .hud-icon { font-size: 1.35rem; }
+    .hud-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; color: var(--gray-text); }
+    .hud-val { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; }
+    .hud-val.red   { color: var(--red); }
+    .hud-val.gold  { color: #b5860c; }
+    .hud-val.green { color: var(--green-light); }
+    .hud-div { width: 1px; height: 36px; background: var(--gray-line); }
+
+    /* Progress */
+    .progress-wrap { margin-bottom: 20px; }
+    .progress-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label, .progress-pct { font-size: 0.72rem; font-weight: 700; }
+    .progress-track { height: 6px; background: rgba(207,207,207,0.4); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--peach)); transition: width 0.55s ease; }
+
+    /* Question Card */
+    .q-card { background: var(--white); border-radius: var(--r); box-shadow: var(--card-shadow); padding: clamp(20px, 5vw, 36px); position: relative; animation: qCardIn 0.38s ease both; }
+    .q-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--red), var(--peach), var(--gold)); }
+    @keyframes qCardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Improved shake animation - more dramatic, multi-stage */
+    @keyframes shake {
+      0%   { transform: translateX(0) rotate(0deg); }
+      10%  { transform: translateX(-12px) rotate(-1.5deg); }
+      20%  { transform: translateX(12px) rotate(1.5deg); }
+      30%  { transform: translateX(-10px) rotate(-1deg); }
+      40%  { transform: translateX(10px) rotate(1deg); }
+      50%  { transform: translateX(-8px) rotate(-0.5deg); }
+      60%  { transform: translateX(8px) rotate(0.5deg); }
+      70%  { transform: translateX(-5px) rotate(0deg); }
+      80%  { transform: translateX(5px) rotate(0deg); }
+      90%  { transform: translateX(-2px); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+    .shake {
+      animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      border: 2px solid rgba(74, 21, 75, 0.35) !important;
+      box-shadow: 0 0 0 4px rgba(74,21,75,0.10), var(--card-shadow) !important;
+    }
+
+    @keyframes correctGlow { 0%,100% { box-shadow: var(--card-shadow); } 50% { box-shadow: 0 0 0 6px rgba(14,75,7,0.18); } }
+    .correct-glow { animation: correctGlow 0.8s ease; }
+
+    .q-text { font-family: 'Playfair Display', serif; font-size: clamp(0.98rem, 3vw, 1.15rem); line-height: 1.6; margin-bottom: 24px; font-weight: 700; }
+
+    .opts-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .opt { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--gray-line); border-radius: var(--r-sm); cursor: pointer; transition: all var(--transition); animation: optIn 0.3s ease both; }
+    @keyframes optIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    .opt:hover:not(.locked) { border-color: var(--red); background: rgba(74,21,75,0.04); transform: translateX(3px); }
+    .opt.selected, .opt.multi-selected { border-color: var(--red); background: rgba(74,21,75,0.06); font-weight: 600; }
+    .opt.correct  { border-color: var(--green-light); background: rgba(14,75,7,0.07); color: var(--green); font-weight: 600; }
+    .opt.wrong    { border-color: #c0392b; background: rgba(192,57,43,0.08); color: #c0392b; font-weight: 600; }
+    .opt.locked   { cursor: default; transform: none !important; }
+
+    .opt-key { width: 30px; height: 30px; border-radius: 8px; background: var(--bg-warm); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--gray-text); transition: all var(--transition); }
+    .opt.selected .opt-key, .opt.multi-selected .opt-key { background: var(--red); color: var(--white); }
+    .opt.correct .opt-key { background: var(--green-light); color: var(--white); }
+    .opt.wrong .opt-key { background: #c0392b; color: var(--white); }
+    .opt-text { font-size: 0.88rem; line-height: 1.5; flex: 1; }
+
+    /* XP / Wrong Popups */
+    #xpPop, #wrongPop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); font-family: 'Playfair Display', serif; font-weight: 700; padding: 12px 24px; border-radius: 14px; opacity: 0; pointer-events: none; z-index: 10005; transition: all 0.2s; }
+    #xpPop { background: var(--gold); color: #3a2800; font-size: 1.6rem; box-shadow: 0 10px 40px rgba(239,193,71,0.5); }
+    #wrongPop { background: var(--red); color: var(--white); font-size: 1.3rem; box-shadow: 0 8px 30px rgba(74,21,75,0.45); }
+    #xpPop.show, #wrongPop.show { opacity: 1; transform: translate(-50%, -75%) scale(1); }
+
+    #confettiWrap { position: fixed; inset: 0; pointer-events: none; z-index: 10006; overflow: hidden; }
+
+    /* Explanation Modal */
+    #explanationModal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 10000;
+      align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px);
+    }
+    #explanationModal.show { display: flex; animation: fadeIn 0.3s forwards; }
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    
+    .expl-box {
+      background: var(--white); border-radius: var(--r); padding: 34px 28px; width: 100%; max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18); text-align: center; animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .expl-icon { font-size: 3rem; margin-bottom: 12px; }
+    .expl-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+    .expl-title.correct { color: var(--green-light); }
+    .expl-title.wrong { color: var(--red-dark); }
+
+    /* Results */
+    .score-ring { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--red) 0deg, rgba(207,207,207,0.35) 0deg); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; position: relative; }
+    .score-ring::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: rgba(74,21,75,0.05); }
+    .score-inner { width: 108px; height: 108px; background: var(--white); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .score-number { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--red); }
+    
+    .result-rating { display: flex; align-items: center; gap: 16px; border-radius: 14px; padding: 20px 24px; margin-bottom: 14px; border: 2px solid transparent; }
+    .rating-review { background: rgba(239,193,71,0.10); border-color: rgba(239,193,71,0.35); }
+    .rating-pro { background: rgba(14,75,7,0.07); border-color: rgba(14,75,7,0.25); }
+    .rating-champion { background: linear-gradient(135deg, rgba(74,21,75,0.08), rgba(239,193,71,0.10)); border-color: rgba(239,193,71,0.45); }
+
+    .badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .badge-card { background: var(--bg-warm); border-radius: 12px; padding: 16px 10px; text-align: center; border: 1.5px solid transparent; opacity: 0.6; }
+    .badge-card.unlocked { background: linear-gradient(135deg, rgba(239,193,71,0.12), rgba(74,21,75,0.08)); border-color: rgba(239,193,71,0.4); opacity: 1; }
+    
+    .dots-nav { display: flex; gap: 7px; justify-content: center; margin-top: 20px; }
+    .dot-item { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-line); }
+    .dot-item.active { background: var(--red); transform: scale(1.4); }
+
+    .success-box { text-align: center; padding: 40px 20px; display: none; }
+
+    @media (max-width: 640px) {
+      .opt { padding: 11px 12px; gap: 10px; border-radius: 9px; }
+      .opt-text { font-size: 0.83rem; }
+      .expl-box { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div id="xpPop">+1 XP ✨</div>
+  <div id="wrongPop">❌ Not Quite!</div>
+  <div id="confettiWrap"></div>
+
+  <!-- EXPLANATION MODAL -->
+  <div id="explanationModal">
+    <div class="expl-box">
+      <div id="explIcon" class="expl-icon"></div>
+      <div id="explTitle" class="expl-title"></div>
+      <div id="explOptionFeedback" style="font-size: 1rem; margin-bottom: 15px; text-align: left; padding: 12px; border-radius: 8px;"></div>
+      <div style="background: #fdf6e3; border-left: 4px solid #b58900; padding: 12px; margin-bottom: 20px; text-align: left;">
+        <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; color: #b58900;">💡 Learning Insight</div>
+        <div id="explInsight" style="font-size: 0.9rem; line-height: 1.4;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="closeExplanationAndNext()">
+        Continue →
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 1 — TITLE -->
+  <div id="screen-title" class="screen active">
+    <div class="col">
+      <div class="logo-area">
+        <img src="logo.png" alt="Company Logo" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+      </div>
+
+      <div class="card" style="text-align:center;">
+        <h1>POSH Awareness Quiz</h1>
+        <p class="lead">Let's review Prevention of Sexual Harassment session through scenario-based questions to ensure a safe and respectful workplace for all.</p>
+
+        <button class="btn btn-primary" onclick="showScreen('screen-profile')">
+          Begin Quiz →
+        </button>
+        <p style="font-size:0.72rem; color:var(--gray-text); margin-top:14px;">10 scenarios · ~5 minutes</p>
+      </div>
+
+      <div class="dots-nav">
+        <div class="dot-item active"></div>
+        <div class="dot-item"></div>
+        <div class="dot-item"></div>
+        <div class="dot-item"></div>
+        <div class="dot-item"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 — NAME ENTRY -->
+  <div id="screen-profile" class="screen">
+    <div class="col">
+      <div class="logo-area">
+        <img src="logo.png" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Step 1 of 5</div>
+        <h2>Who's taking the quiz?</h2>
+        <p class="lead" style="margin-bottom: 20px;">Please enter your name.</p>
+
+        <div class="form-group">
+          <label class="label-sm" for="p-name">Your Name</label>
+          <input type="text" id="p-name" class="form-field" >
+          <div class="err-msg" id="err-name">Please enter your name to continue.</div>
+        </div>
+
+        <button class="btn btn-primary" onclick="submitProfile()" style="margin-top:8px;">
+          Start Quiz →
+        </button>
+      </div>
+
+      <div class="dots-nav">
+        <div class="dot-item active"></div>
+        <div class="dot-item active"></div>
+        <div class="dot-item"></div>
+        <div class="dot-item"></div>
+        <div class="dot-item"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 — QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="col">
+      <div class="logo-area">
+        <img src="logo.png" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+      </div>
+
+      <div class="hud">
+        <div class="hud-item">
+          <div class="hud-icon">⚡</div>
+          <div class="hud-info">
+            <div class="hud-label">XP</div>
+            <div class="hud-val red" id="hud-xp">0</div>
+          </div>
+        </div>
+        <div class="hud-div"></div>
+        <div class="hud-item">
+          <div class="hud-icon">🔥</div>
+          <div class="hud-info">
+            <div class="hud-label">Streak</div>
+            <div class="hud-val gold" id="hud-streak">0</div>
+          </div>
+        </div>
+        <div class="hud-div"></div>
+        <div class="hud-item">
+          <div class="hud-icon">🎖</div>
+          <div class="hud-info">
+            <div class="hud-label">Level</div>
+            <div class="hud-val green" id="hud-level">Rookie</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span class="progress-label" id="progress-label">Scenario 1 of 10</span>
+          <span class="progress-pct" id="progress-pct">10%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 10%;"></div>
+        </div>
+      </div>
+
+      <div class="q-card" id="qCard">
+        <div class="eyebrow" id="q-heading">Scenario 1</div>
+        <div id="q-scenario" style="background: rgba(74,21,75,0.03); border-left: 4px solid var(--red); padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; color: var(--text-dark);"></div>
+        <div class="q-text" id="q-text" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 20px;"></div>
+        <ul class="opts-list" id="q-opts"></ul>
+        <button class="btn btn-primary" id="btn-next" style="display:none;" disabled onclick="lockAndScoreMulti()">
+          Confirm Options ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 — RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="col">
+      <div class="logo-area">
+        <img src="logo.png" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="text-align:center;">Quiz Complete</div>
+
+        <div class="score-ring-wrap">
+          <div class="score-ring" id="scoreRing">
+            <div class="score-inner">
+              <div class="score-number" id="finalScore">0</div>
+              <div class="score-label">OUT OF 100</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-rating" id="resultRating">
+          <div class="result-rating-icon" id="resultRatingIcon">📘</div>
+          <div class="result-rating-body">
+            <div class="result-rating-name" id="resultRatingName">Needs Review</div>
+            <div class="result-rating-sub"  id="resultRatingSub">Remember to revisit the POSH company policy for a refresher.</div>
+          </div>
+        </div>
+
+        <div class="badges-section" style="margin-top:20px;">
+          <div class="badges-grid">
+            <div class="badge-card" id="badge-respect">
+              <div style="font-size: 1.8rem; margin-bottom:6px;">🤝</div>
+              <div style="font-size:0.75rem; font-weight:700;">Respect Advocate</div>
+            </div>
+            <div class="badge-card" id="badge-policy">
+              <div style="font-size: 1.8rem; margin-bottom:6px;">📘</div>
+              <div style="font-size:0.75rem; font-weight:700;">Policy Pro</div>
+            </div>
+            <div class="badge-card" id="badge-champion">
+              <div style="font-size: 1.8rem; margin-bottom:6px;">🏆</div>
+              <div style="font-size:0.75rem; font-weight:700;">Culture Champion</div>
+            </div>
+          </div>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #ddd; margin:20px 0;">
+        <button class="btn btn-gold" onclick="showScreen('screen-feedback')">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5 — FEEDBACK -->
+  <div id="screen-feedback" class="screen">
+    <div class="col">
+      <div class="logo-area">
+        <img src="logo.png" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+      </div>
+
+      <div class="card" id="feedbackCard">
+        <h2>Share Your Feedback</h2>
+        <p class="lead">Help us improve future awareness sessions.</p>
+
+        <div class="form-group">
+          <label class="label-sm">How informative was the session? (1–10)</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+            <input type="range" id="sl-confidence" min="1" max="10" value="8" step="1" style="flex:1;"
+              oninput="document.getElementById('sl-val').textContent = this.value">
+            <div id="sl-val" style="font-weight:700; color:var(--red); font-size:1.2rem;">8</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="submitFeedback()">Submit Completion</button>
+      </div>
+
+      <div class="card success-box" id="successBox">
+        <span style="font-size:3rem;">🛡️</span>
+        <div style="font-family:'Playfair Display'; font-size:1.5rem; font-weight:700; margin:10px 0;">Completion Recorded!</div>
+        <p>Thank you for contributing to a safe, respectful workplace.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  'use strict';
+
+  const QUESTIONS = [
+    {
+      heading: "🧩 Scenario 1: Power Play",
+      scenario: `Ankit, a team lead, tells his reportee Sana:<br><em>"We should spend more time together outside work… it'll help me understand you better for your growth."</em><br>Sana feels pressured.`,
+      question: "What is this?",
+      options: ["Mentorship", "Harmless suggestion", "Sexual harassment (misuse of authority)", "Miscommunication"],
+      correctIndex: 2,
+      category: "Misuse of Authority",
+      optionFeedback: [
+        "<strong>❌ Not quite right</strong><br>Mentorship should be professional, transparent, and comfortable for both sides. This situation creates pressure.",
+        "<strong>⚠️ Close, but think deeper</strong><br>Even if framed casually, the power difference makes this uncomfortable and inappropriate.",
+        "<strong>✅ That's right!</strong><br>You've identified a misuse of authority.",
+        "<strong>❌ Not quite</strong><br>This goes beyond miscommunication—it creates implicit pressure linked to growth."
+      ],
+      insight: "A manager is in a position of power. Suggestions that link career growth with personal time can feel coercive—even if not explicitly stated.<br>👉 If someone feels pressured, it's a red flag."
+    },
+    {
+      heading: "🧩 Scenario 2: \"Just a Joke\"",
+      scenario: `Riya is in a weekly team meeting. During the call, Arjun jokes,<br><em>"Riya, you've dressed up today—big client call or just trying to impress someone?"</em><br>Some teammates laugh. Riya smiles awkwardly but stays quiet.`,
+      question: "What is this?",
+      options: ["Harmless joke", "Okay if she didn't object", "Unwelcome behavior that may be harassment", "Only an issue if repeated"],
+      correctIndex: 2,
+      category: "Unwelcome Behavior",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Humor is subjective—but discomfort makes it inappropriate.",
+        "<strong>❌ Not quite</strong><br>Silence ≠ consent. People often don't speak up in public.",
+        "<strong>✅ Correct!</strong><br>This is unwelcome and inappropriate.",
+        "<strong>⚠️ Close</strong><br>Repetition makes it worse—but even one instance can matter."
+      ],
+      insight: "Impact matters more than intent.<br>👉 Even \"jokes\" can cross the line if they make someone uncomfortable."
+    },
+    {
+      heading: "🧩 Scenario 3: Persistent Invites",
+      scenario: `Karan has asked Meera out for coffee twice. She politely declined both times.<br>A few days later, he messages again:<br><em>"Come on, don't be so serious. Just one coffee?"</em>`,
+      question: "What is this?",
+      options: ["Friendly persistence", "Acceptable outside work", "Unwelcome behavior", "Not harassment unless reported"],
+      correctIndex: 2,
+      category: "Boundaries & Consent",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Persistence after refusal = disregarding boundaries.",
+        "<strong>❌ Not quite</strong><br>Work hours don't matter—context and consent do.",
+        "<strong>✅ Correct!</strong><br>This is unwelcome behavior.",
+        "<strong>❌ Not quite</strong><br>Reporting doesn't define harassment—behavior does."
+      ],
+      insight: "No means no—even outside the office.<br>👉 Continuing after a clear refusal is boundary violation."
+    },
+    {
+      heading: "🧩 Scenario 4: WFH Messages",
+      scenario: `During WFH, Neha's manager Rahul starts messaging her late at night:<br><em>"You looked really nice on the call today :)"</em><br><em>"Miss our chats after work hours"</em><br>Neha feels uncomfortable but isn't sure if it's "serious enough."`,
+      question: "What is this?",
+      options: ["Friendly", "Informal culture", "Inappropriate behavior", "Only an issue if explicit"],
+      correctIndex: 2,
+      category: "Digital Workplace",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Context matters—this is not work-related.",
+        "<strong>❌ Not quite</strong><br>Culture doesn't override boundaries.",
+        "<strong>✅ Correct!</strong><br>Late-night personal messages from a manager cross professional boundaries.",
+        "<strong>⚠️ Close</strong><br>Doesn't have to be explicit to be uncomfortable or inappropriate."
+      ],
+      insight: "WFH = workplace. Boundaries still apply.<br>👉 Digital communication is still professional communication."
+    },
+    {
+      heading: "🧩 Scenario 5: Offsite Boundary",
+      scenario: `At an offsite in Bangalore, after dinner, Vikram insists on walking Aisha back to her hotel room.<br>At the door, he says, <em>"Let's hang out a bit more"</em> and tries to step inside despite her hesitation.`,
+      question: "What is this?",
+      options: ["Friendly", "Normal during travel", "Potential harassment", "Personal matter"],
+      correctIndex: 2,
+      category: "Extended Workplace",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Ignoring hesitation = red flag.",
+        "<strong>❌ Not quite</strong><br>Travel ≠ relaxed boundaries.",
+        "<strong>✅ Correct!</strong><br>Ignoring someone's hesitation and invading personal space is inappropriate.",
+        "<strong>❌ Not quite</strong><br>Work travel = workplace. This is not a personal matter."
+      ],
+      insight: "Offsites are still workspaces. Consent is key.<br>👉 Hesitation is a 'No'—always respect it."
+    },
+    {
+      heading: "🧩 Scenario 6: WhatsApp Meme",
+      scenario: `In a team WhatsApp group, Rohit shares a sexually suggestive meme.<br>Some people react with emojis, others stay silent.<br>Ananya feels uncomfortable but doesn't respond.`,
+      question: "What is this?",
+      options: ["Harmless", "Fine if no one objects", "Inappropriate behavior", "Depends on culture"],
+      correctIndex: 2,
+      category: "Digital Workplace",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Humor ≠ harmless when it makes colleagues uncomfortable.",
+        "<strong>❌ Not quite</strong><br>Silence ≠ comfort. People may not feel safe to object.",
+        "<strong>✅ Correct!</strong><br>Sexually suggestive content in work groups is inappropriate.",
+        "<strong>❌ Not quite</strong><br>Culture doesn't justify behavior that causes discomfort."
+      ],
+      insight: "Digital spaces are also workplaces.<br>👉 What you wouldn't say in person, don't post in a work group."
+    },
+    {
+      heading: "🧩 Scenario 7: Compliments Gone Wrong",
+      scenario: `Siddharth often tells his colleague Pooja:<br><em>"You look hot today"</em> / <em>"That outfit is quite something"</em><br>He says it casually and laughs it off.`,
+      question: "What is this?",
+      options: ["A compliment", "Intent matters most", "Inappropriate behavior", "Only if repeated"],
+      correctIndex: 2,
+      category: "Respectful Communication",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>This crosses into objectification, not professional appreciation.",
+        "<strong>❌ Not quite</strong><br>Impact matters more than intent.",
+        "<strong>✅ Correct!</strong><br>Comments about appearance that objectify colleagues are inappropriate.",
+        "<strong>⚠️ Close</strong><br>Even one instance can matter and make someone uncomfortable."
+      ],
+      insight: "Professional spaces require respectful language.<br>👉 Compliment someone's work, not their body."
+    },
+    {
+      heading: "🧩 Scenario 8: Bystander Moment",
+      scenario: `During a discussion, Nikhil repeatedly interrupts Fatima and says:<br><em>"Let the guys handle this, it's a tough client."</em><br>You notice Fatima becoming quieter.`,
+      question: "What should you do?",
+      options: ["Ignore it", "Gossip about it later", "Support, intervene, or report", "Only act if Fatima asks you to"],
+      correctIndex: 2,
+      category: "Bystander Responsibility",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Silence enables behavior. Bystanders can make a difference.",
+        "<strong>❌ Not quite</strong><br>Gossiping doesn't solve anything—it can make things worse.",
+        "<strong>✅ Correct!</strong><br>As a bystander, you can speak up, support Fatima, or escalate.",
+        "<strong>⚠️ Close</strong><br>You can proactively support someone even without being explicitly asked."
+      ],
+      insight: "Bystanders can shift culture.<br>👉 You don't have to be the target to take action."
+    },
+    {
+      heading: "🧩 Scenario 9: Impact vs Intent",
+      scenario: `Aman sends a flirty message to his colleague Isha:<br><em>"Can't focus on work after seeing you today ;)"</em><br>Isha expresses discomfort. Aman replies: <em>"Relax, I didn't mean anything."</em>`,
+      question: "What matters most here?",
+      options: ["Intent", "Impact", "Repetition", "Visibility"],
+      correctIndex: 1,
+      category: "Impact vs Intent",
+      optionFeedback: [
+        "<strong>❌ Not enough</strong><br>Good intentions don't erase the harm caused. Intent alone is not a defense.",
+        "<strong>✅ Correct!</strong><br>If it makes someone uncomfortable, it matters—regardless of intent.",
+        "<strong>⚠️ Relevant, but not primary</strong><br>Repetition escalates severity, but a single incident already matters.",
+        "<strong>❌ Not quite</strong><br>Whether others saw it doesn't change the impact on the person affected."
+      ],
+      insight: "If it makes someone uncomfortable, it matters.<br>👉 'I didn't mean it' is not an excuse—impact is what counts."
+    },
+    {
+      heading: "🧩 Scenario 10: Field Staff – Client Site",
+      scenario: `Ramesh is a service associate at a client office. Another vendor staff member says:<br><em>"Why are you so serious? Smile more, makes you look better."</em><br>Later, he repeatedly tries personal conversations despite Ramesh keeping responses minimal.<br>Ramesh feels uncomfortable but is unsure since this person is not from Padcare.`,
+      question: "What should Ramesh do?",
+      options: ["Ignore it", "Handle it himself", "Report it", "Only act if it gets physical"],
+      correctIndex: 2,
+      category: "Third-Party Harassment",
+      optionFeedback: [
+        "<strong>❌ Not quite</strong><br>Ignoring allows escalation. Discomfort is valid and worth reporting.",
+        "<strong>❌ Not quite</strong><br>This is not Ramesh's burden alone—he has the right to support.",
+        "<strong>✅ Correct!</strong><br>POSH applies at client sites and includes third-party behavior.",
+        "<strong>❌ Not quite</strong><br>It doesn't need to escalate to physical contact to be reportable."
+      ],
+      insight: "POSH applies at client sites and includes third parties.<br>👉 You can report to: <strong>posh@padcarelabs.com</strong>"
+    }
+  ];
+
+  const LEVELS = [
+    { min: 0,  max: 3,  name: "Learner" },
+    { min: 4,  max: 7,  name: "Aware" },
+    { min: 8,  max: 10, name: "Ally" }
+  ];
+
+  let game = { currentQ: 0, xp: 0, streak: 0, maxStreak: 0, answered: false, multiSelected: [], answers: [] };
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function submitProfile() {
+    const name = document.getElementById('p-name').value.trim();
+    if (!name) { document.getElementById('err-name').classList.add('show'); return; }
+    showScreen('screen-quiz');
+    renderQuestion();
+  }
+
+  function shuffleOptions(q) {
+    const indexed = q.options.map((text, i) => ({ text, origIdx: i }));
+    for (let i = indexed.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+    }
+    const shuffledOptions = indexed.map(o => o.text);
+    const shuffledFeedback = indexed.map(o => q.optionFeedback[o.origIdx]);
+    const shuffledCorrect = Array.isArray(q.correctIndex)
+      ? q.correctIndex.map(ci => indexed.findIndex(o => o.origIdx === ci))
+      : indexed.findIndex(o => o.origIdx === q.correctIndex);
+    return { ...q, options: shuffledOptions, optionFeedback: shuffledFeedback, correctIndex: shuffledCorrect };
+  }
+
+  function renderQuestion() {
+    const q = shuffleOptions(QUESTIONS[game.currentQ]);
+    game._currentQ = q;
+    game.answered = false;
+    game.multiSelected = [];
+
+    const pct = Math.round(((game.currentQ + 1) / QUESTIONS.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = `Level ${game.currentQ + 1}/10`;
+    document.getElementById('progress-pct').textContent   = pct + '%';
+
+    document.getElementById('q-heading').textContent = q.heading;
+    document.getElementById('q-scenario').innerHTML  = q.scenario;
+    document.getElementById('q-text').textContent    = q.question;
+
+    const ul = document.getElementById('q-opts');
+    ul.innerHTML = '';
+    ['A', 'B', 'C', 'D'].forEach((ltr, i) => {
+      if (!q.options[i]) return;
+      const li = document.createElement('li');
+      li.className = 'opt';
+      li.innerHTML = `<span class="opt-key">${ltr}</span><span class="opt-text">${q.options[i]}</span>`;
+      if (isMultiSelect(q)) li.addEventListener('click', () => toggleMultiOpt(i, li));
+      else li.addEventListener('click', () => pickSingleOpt(i));
+      ul.appendChild(li);
+    });
+
+    const btn = document.getElementById('btn-next');
+    if (isMultiSelect(q)) { btn.style.display = 'inline-flex'; btn.disabled = true; }
+    else btn.style.display = 'none';
+
+    const card = document.getElementById('qCard');
+    card.style.animation = 'none'; card.offsetHeight; card.style.animation = '';
+    updateXP(0);
+  }
+
+  function isMultiSelect(q) { return Array.isArray(q.correctIndex); }
+
+  function pickSingleOpt(chosen) {
+    if (game.answered) return;
+    game.answered = true;
+
+    const q = game._currentQ;
+    const correct = q.correctIndex;
+    const isRight = chosen === correct;
+
+    document.querySelectorAll('.opt').forEach((li, i) => {
+      li.classList.add('locked');
+      if (i === correct) li.classList.add('correct');
+      else if (i === chosen && !isRight) li.classList.add('wrong');
+    });
+    document.querySelectorAll('.opt')[chosen].classList.add('selected');
+
+    handleAnswerVisuals(isRight, q, chosen);
+  }
+
+  function toggleMultiOpt(idx, li) {
+    if (game.answered) return;
+    const pos = game.multiSelected.indexOf(idx);
+    if (pos === -1) { game.multiSelected.push(idx); li.classList.add('multi-selected'); }
+    else { game.multiSelected.splice(pos, 1); li.classList.remove('multi-selected'); }
+    document.getElementById('btn-next').disabled = game.multiSelected.length === 0;
+  }
+
+  function lockAndScoreMulti() {
+    if (game.answered) return;
+    game.answered = true;
+    const q = game._currentQ;
+    const correct = [...q.correctIndex].sort();
+    const chosen  = [...game.multiSelected].sort();
+    const isRight = JSON.stringify(chosen) === JSON.stringify(correct);
+    document.querySelectorAll('.opt').forEach((li, i) => {
+      li.classList.add('locked'); li.classList.remove('multi-selected');
+      if (q.correctIndex.includes(i)) li.classList.add('correct');
+      else if (game.multiSelected.includes(i) && !q.correctIndex.includes(i)) li.classList.add('wrong');
+    });
+    handleAnswerVisuals(isRight, q, chosen);
+  }
+
+  function handleAnswerVisuals(isRight, q, chosen) {
+    game.answers.push({ correct: isRight, cat: q.category });
+    if (isRight) { game.streak++; game.maxStreak = Math.max(game.maxStreak, game.streak); }
+    else { game.streak = 0; }
+    document.getElementById('hud-streak').textContent = game.streak;
+
+    const card = document.getElementById('qCard');
+    card.classList.remove('correct-glow', 'shake');
+    void card.offsetWidth;
+
+    if (isRight) {
+      card.classList.add('correct-glow');
+      playSound('correctSound');
+    } else {
+      playSound('wrongSound');
+    }
+
+    // Wait 1.5 seconds so user can see correct/wrong highlights, then show explanation
+    setTimeout(() => showExplanationPopup(isRight, q, chosen), 1500);
+  }
+
+  function showExplanationPopup(isRight, q, chosen) {
+    const modal = document.getElementById('explanationModal');
+    const icon  = document.getElementById('explIcon');
+    const title = document.getElementById('explTitle');
+    const optFeedback = document.getElementById('explOptionFeedback');
+    const insightText = document.getElementById('explInsight');
+
+    const chosenIdx = Array.isArray(chosen) ? chosen[0] : chosen;
+    const feedbackText = q.optionFeedback[chosenIdx] || '';
+
+    let reaction = '💡';
+    if (feedbackText.includes('✅')) reaction = '✅';
+    else if (feedbackText.includes('⚠️')) reaction = '⚠️';
+    else if (feedbackText.includes('❌')) reaction = '❌';
+
+    icon.textContent  = reaction;
+    title.textContent = isRight ? 'Great Job!' : 'Keep Learning';
+    title.className   = isRight ? 'expl-title correct' : 'expl-title wrong';
+
+    optFeedback.innerHTML = feedbackText;
+    if (feedbackText.includes('✅')) optFeedback.style.background = 'rgba(14,75,7,0.08)';
+    else if (feedbackText.includes('⚠️')) optFeedback.style.background = 'rgba(181,137,0,0.08)';
+    else optFeedback.style.background = 'rgba(74,21,75,0.08)';
+
+    insightText.innerHTML = q.insight;
+
+    if (isRight) { updateXP(1); showXpPop(); }
+
+    modal.classList.add('show');
+  }
+
+  function closeExplanationAndNext() {
+    document.getElementById('explanationModal').classList.remove('show');
+    advanceQuestion();
+  }
+
+  function advanceQuestion() {
+    game.currentQ++;
+    if (game.currentQ >= QUESTIONS.length) { buildResults(); showScreen('screen-results'); }
+    else renderQuestion();
+  }
+
+  function updateXP(delta) {
+    game.xp += delta;
+    document.getElementById('hud-xp').textContent = game.xp;
+    const lvl = LEVELS.find(l => game.xp <= l.max) || LEVELS[LEVELS.length - 1];
+    document.getElementById('hud-level').textContent = lvl.name;
+  }
+
+  function showXpPop() {
+    const el = document.getElementById('xpPop');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1200);
+  }
+
+  function playSound(id) {
+    try { const a = document.getElementById(id); if (a) { a.currentTime = 0; a.play().catch(() => {}); } } catch(e) {}
+  }
+
+  function buildResults() {
+    const score = game.xp;
+    document.getElementById('finalScore').textContent = score;
+    setTimeout(() => { document.getElementById('scoreRing').style.background = `conic-gradient(var(--red) ${score * 36}deg, rgba(207,207,207,0.35) ${score * 36}deg)`; }, 100);
+
+    const rEl = document.getElementById('resultRating'), rIcon = document.getElementById('resultRatingIcon');
+    const rName = document.getElementById('resultRatingName'), rSub = document.getElementById('resultRatingSub');
+
+    if (score >= 8) {
+      rEl.className = 'result-rating rating-champion'; rIcon.textContent = '🛡️';
+      rName.textContent = 'POSH Champion'; rSub.textContent = 'You understand boundaries, respect, and responsibility.';
+      document.getElementById('badge-champion').classList.add('unlocked');
+    } else if (score >= 5) {
+      rEl.className = 'result-rating rating-pro'; rIcon.textContent = '🌱';
+      rName.textContent = 'Aware, but growing'; rSub.textContent = 'You\'re on the right track—keep building awareness.';
+      document.getElementById('badge-policy').classList.add('unlocked');
+    } else {
+      rEl.className = 'result-rating rating-review'; rIcon.textContent = '📘';
+      rName.textContent = 'Let\'s learn together'; rSub.textContent = 'This is a great starting point—awareness is the first step.';
+      document.getElementById('badge-respect').classList.add('unlocked');
+    }
+
+    if (score >= 8) { launchConfetti(); setTimeout(() => playSound('applauseSound'), 400); }
+  }
+
+  function launchConfetti() {
+    const wrap = document.getElementById('confettiWrap'); wrap.innerHTML = '';
+    const colors = ['#4A154B','#D4AF37','#EAB8E6','#9D7A9E','#1a7a0f'];
+    for (let i = 0; i < 60; i++) {
+      const p = document.createElement('div');
+      const sz = 6 + Math.random() * 8;
+      p.style.cssText = `position:absolute; top:-10px; left:${Math.random()*100}%; width:${sz}px; height:${sz}px; background:${colors[Math.floor(Math.random()*colors.length)]}; animation: cfFall ${1.6+Math.random()*2}s linear forwards; border-radius:${Math.random()>.5?'50%':'2px'}`;
+      wrap.appendChild(p);
+    }
+  }
+
+  function submitFeedback() {
+    document.getElementById('feedbackCard').style.display = 'none';
+    document.getElementById('successBox').style.display = 'block';
+  }
+
+  document.head.insertAdjacentHTML('beforeend', '<style>@keyframes cfFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }</style>');
+</script>
+</body>
+</html>
