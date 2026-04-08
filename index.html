@@ -135,7 +135,6 @@
     .q-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--red), var(--peach), var(--gold)); }
     @keyframes qCardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Improved shake animation - more dramatic, multi-stage */
     @keyframes shake {
       0%   { transform: translateX(0) rotate(0deg); }
       10%  { transform: translateX(-12px) rotate(-1.5deg); }
@@ -201,21 +200,206 @@
     .expl-title.correct { color: var(--green-light); }
     .expl-title.wrong { color: var(--red-dark); }
 
-    /* Results */
-    .score-ring { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--red) 0deg, rgba(207,207,207,0.35) 0deg); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; position: relative; }
-    .score-ring::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: rgba(74,21,75,0.05); }
-    .score-inner { width: 108px; height: 108px; background: var(--white); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-    .score-number { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--red); }
-    
-    .result-rating { display: flex; align-items: center; gap: 16px; border-radius: 14px; padding: 20px 24px; margin-bottom: 14px; border: 2px solid transparent; }
-    .rating-review { background: rgba(239,193,71,0.10); border-color: rgba(239,193,71,0.35); }
-    .rating-pro { background: rgba(14,75,7,0.07); border-color: rgba(14,75,7,0.25); }
-    .rating-champion { background: linear-gradient(135deg, rgba(74,21,75,0.08), rgba(239,193,71,0.10)); border-color: rgba(239,193,71,0.45); }
+    /* ── RESULTS SCREEN ── */
+    #screen-results { background: transparent; }
 
-    .badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .badge-card { background: var(--bg-warm); border-radius: 12px; padding: 16px 10px; text-align: center; border: 1.5px solid transparent; opacity: 0.6; }
-    .badge-card.unlocked { background: linear-gradient(135deg, rgba(239,193,71,0.12), rgba(74,21,75,0.08)); border-color: rgba(239,193,71,0.4); opacity: 1; }
-    
+    .results-hero {
+      background: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 60%, #7a2e7b 100%);
+      border-radius: 20px;
+      padding: 36px 32px 28px;
+      color: var(--white);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .results-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .results-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30px; left: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(212,175,55,0.12);
+    }
+
+    .results-hero-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 20px;
+    }
+
+    .score-donut-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+    }
+    .score-donut-wrap svg { position: absolute; top: 0; left: 0; }
+    .score-donut-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .score-donut-pct {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+    }
+    .score-donut-of {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .results-hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: var(--white);
+    }
+    .results-hero-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    /* Stat Pills Row */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-pill {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(74,21,75,0.08);
+    }
+    .stat-pill-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-pill-val.purple { color: var(--red); }
+    .stat-pill-val.gold   { color: #b5860c; }
+    .stat-pill-val.green  { color: var(--green-light); }
+    .stat-pill-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gray-text);
+    }
+
+    /* Badge Panel */
+    .badge-panel {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 4px 16px rgba(74,21,75,0.08);
+      margin-bottom: 16px;
+    }
+    .badge-panel-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray-text);
+      margin-bottom: 14px;
+    }
+    .badge-row {
+      display: flex;
+      gap: 10px;
+    }
+    .badge-item {
+      flex: 1;
+      background: var(--bg-warm);
+      border-radius: 12px;
+      padding: 14px 8px;
+      text-align: center;
+      border: 1.5px solid transparent;
+      opacity: 0.38;
+      filter: grayscale(1);
+      transition: all 0.4s ease;
+    }
+    .badge-item.unlocked {
+      background: linear-gradient(135deg, rgba(212,175,55,0.10), rgba(74,21,75,0.06));
+      border-color: rgba(212,175,55,0.45);
+      opacity: 1;
+      filter: grayscale(0);
+      box-shadow: 0 4px 16px rgba(212,175,55,0.18);
+    }
+    .badge-emoji { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+    .badge-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+
+    /* Message Card */
+    .message-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 16px rgba(74,21,75,0.08);
+      margin-bottom: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .message-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .message-card-icon.champion { background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(74,21,75,0.12)); }
+    .message-card-icon.pro      { background: rgba(14,75,7,0.08); }
+    .message-card-icon.review   { background: rgba(74,21,75,0.07); }
+    .message-card-body {}
+    .message-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .message-card-body p {
+      font-size: 0.85rem;
+      color: var(--gray-text);
+      line-height: 1.6;
+    }
+
     .dots-nav { display: flex; gap: 7px; justify-content: center; margin-top: 20px; }
     .dot-item { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-line); }
     .dot-item.active { background: var(--red); transform: scale(1.4); }
@@ -226,6 +410,9 @@
       .opt { padding: 11px 12px; gap: 10px; border-radius: 9px; }
       .opt-text { font-size: 0.83rem; }
       .expl-box { padding: 24px 20px; }
+      .results-hero { padding: 28px 20px 24px; }
+      .stat-row { gap: 8px; }
+      .stat-pill { padding: 14px 8px; }
     }
   </style>
 </head>
@@ -257,17 +444,20 @@
     <div class="col">
       <div class="logo-area">
         <img src="logo.png" alt="Company Logo" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
-        <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
+        <div class="logo-fallback">Padcare<span class="logo-dot"></span></div>
       </div>
 
       <div class="card" style="text-align:center;">
-        <h1>POSH Awareness Quiz</h1>
-        <p class="lead">Let's review Prevention of Sexual Harassment session through scenario-based questions to ensure a safe and respectful workplace for all.</p>
+        <h1>POSH Awareness Quiz 🛡️</h1>
+        <p class="lead" style="margin-bottom:10px;">Hey there! 👋</p>
+        <p class="lead">Let's take a quick moment to revisit your understanding of the Prevention of Sexual Harassment (POSH) through a few real-life scenarios.</p>
+        <p class="lead">This short quiz will help reinforce how we can all contribute to a safe, respectful, and inclusive workplace.</p>
+        <p style="font-size:0.95rem; color:var(--text-dark); margin-bottom:28px;">👉 Read each situation carefully and choose what feels right.</p>
 
         <button class="btn btn-primary" onclick="showScreen('screen-profile')">
           Begin Quiz →
         </button>
-        <p style="font-size:0.72rem; color:var(--gray-text); margin-top:14px;">10 scenarios · ~5 minutes</p>
+        <p style="font-size:0.72rem; color:var(--gray-text); margin-top:14px;">11 scenarios · ~5 minutes</p>
       </div>
 
       <div class="dots-nav">
@@ -291,11 +481,11 @@
       <div class="card">
         <div class="eyebrow">Step 1 of 5</div>
         <h2>Who's taking the quiz?</h2>
-        <p class="lead" style="margin-bottom: 20px;">Please enter your name.</p>
+        <p class="lead" style="margin-bottom: 20px;">Enter your name so we can personalise your experience.</p>
 
         <div class="form-group">
           <label class="label-sm" for="p-name">Your Name</label>
-          <input type="text" id="p-name" class="form-field" >
+          <input type="text" id="p-name" class="form-field" placeholder="">
           <div class="err-msg" id="err-name">Please enter your name to continue.</div>
         </div>
 
@@ -378,46 +568,72 @@
         <div class="logo-fallback">POSH<span class="logo-dot"></span></div>
       </div>
 
-      <div class="card">
-        <div class="eyebrow" style="text-align:center;">Quiz Complete</div>
-
-        <div class="score-ring-wrap">
-          <div class="score-ring" id="scoreRing">
-            <div class="score-inner">
-              <div class="score-number" id="finalScore">0</div>
-              <div class="score-label">OUT OF 100</div>
-            </div>
+      <!-- Hero Score Block -->
+      <div class="results-hero">
+        <div class="results-hero-label">Quiz Complete · POSH Awareness</div>
+        <div class="score-donut-wrap">
+          <svg id="donutSvg" width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="10"/>
+            <circle id="donutArc" cx="60" cy="60" r="50" fill="none" stroke="#D4AF37" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="0 314" stroke-dashoffset="78.5"
+              style="transition: stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1); transform-origin: center;"/>
+          </svg>
+          <div class="score-donut-inner">
+            <div class="score-donut-pct" id="finalScore">0%</div>
+            <div class="score-donut-of">Score</div>
           </div>
         </div>
-
-        <div class="result-rating" id="resultRating">
-          <div class="result-rating-icon" id="resultRatingIcon">📘</div>
-          <div class="result-rating-body">
-            <div class="result-rating-name" id="resultRatingName">Needs Review</div>
-            <div class="result-rating-sub"  id="resultRatingSub">Remember to revisit the POSH company policy for a refresher.</div>
-          </div>
-        </div>
-
-        <div class="badges-section" style="margin-top:20px;">
-          <div class="badges-grid">
-            <div class="badge-card" id="badge-respect">
-              <div style="font-size: 1.8rem; margin-bottom:6px;">🤝</div>
-              <div style="font-size:0.75rem; font-weight:700;">Respect Advocate</div>
-            </div>
-            <div class="badge-card" id="badge-policy">
-              <div style="font-size: 1.8rem; margin-bottom:6px;">📘</div>
-              <div style="font-size:0.75rem; font-weight:700;">Policy Pro</div>
-            </div>
-            <div class="badge-card" id="badge-champion">
-              <div style="font-size: 1.8rem; margin-bottom:6px;">🏆</div>
-              <div style="font-size:0.75rem; font-weight:700;">Culture Champion</div>
-            </div>
-          </div>
-        </div>
-
-        <hr style="border:0; border-top:1px solid #ddd; margin:20px 0;">
-        <button class="btn btn-gold" onclick="showScreen('screen-feedback')">Next</button>
+        <div class="results-hero-title" id="heroTitle">—</div>
+        <div class="results-hero-sub" id="heroSub">—</div>
       </div>
+
+      <!-- Stat Pills -->
+      <div class="stat-row">
+        <div class="stat-pill">
+          <div class="stat-pill-val purple" id="statCorrect">0</div>
+          <div class="stat-pill-label">Correct</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-val gold" id="statStreak">0</div>
+          <div class="stat-pill-label">Best Streak</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-val green" id="statXP">0</div>
+          <div class="stat-pill-label">XP Earned</div>
+        </div>
+      </div>
+
+      <!-- Message Card -->
+      <div class="message-card" id="messageCard">
+        <div class="message-card-icon" id="messageIcon">📘</div>
+        <div class="message-card-body">
+          <div class="message-card-title" id="messageTitle">—</div>
+          <p id="messageBody">—</p>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="badge-panel">
+        <div class="badge-panel-title">Achievements</div>
+        <div class="badge-row">
+          <div class="badge-item" id="badge-respect">
+            <span class="badge-emoji">📘</span>
+            <div class="badge-name">Learning in Progress</div>
+          </div>
+          <div class="badge-item" id="badge-policy">
+            <span class="badge-emoji">🌱</span>
+            <div class="badge-name">Awareness Builder</div>
+          </div>
+          <div class="badge-item" id="badge-champion">
+            <span class="badge-emoji">🏆</span>
+            <div class="badge-name">POSH Champion</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" onclick="showScreen('screen-feedback')" style="margin-top: 4px;">
+        Share Feedback →
+      </button>
     </div>
   </div>
 
@@ -462,9 +678,10 @@
       heading: "🧩 Scenario 1: Power Play",
       scenario: `Ankit, a team lead, tells his reportee Sana:<br><em>"We should spend more time together outside work… it'll help me understand you better for your growth."</em><br>Sana feels pressured.`,
       question: "What is this?",
-      options: ["Mentorship", "Harmless suggestion", "Sexual harassment (misuse of authority)", "Miscommunication"],
+      options: ["Mentorship", "Harmless suggestion", "Sexual harassment ", "Miscommunication"],
       correctIndex: 2,
       category: "Misuse of Authority",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite right</strong><br>Mentorship should be professional, transparent, and comfortable for both sides. This situation creates pressure.",
         "<strong>⚠️ Close, but think deeper</strong><br>Even if framed casually, the power difference makes this uncomfortable and inappropriate.",
@@ -475,11 +692,12 @@
     },
     {
       heading: "🧩 Scenario 2: \"Just a Joke\"",
-      scenario: `Riya is in a weekly team meeting. During the call, Arjun jokes,<br><em>"Riya, you've dressed up today—big client call or just trying to impress someone?"</em><br>Some teammates laugh. Riya smiles awkwardly but stays quiet.`,
+      scenario: `Priya is in a weekly team meeting. During the call, Arjun jokes,<br><em>"Priya, you've dressed up today—big client call or just trying to impress someone?"</em><br>Some teammates laugh. Priya smiles awkwardly but stays quiet.`,
       question: "What is this?",
       options: ["Harmless joke", "Okay if she didn't object", "Unwelcome behavior that may be harassment", "Only an issue if repeated"],
       correctIndex: 2,
       category: "Unwelcome Behavior",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Humor is subjective—but discomfort makes it inappropriate.",
         "<strong>❌ Not quite</strong><br>Silence ≠ consent. People often don't speak up in public.",
@@ -495,6 +713,7 @@
       options: ["Friendly persistence", "Acceptable outside work", "Unwelcome behavior", "Not harassment unless reported"],
       correctIndex: 2,
       category: "Boundaries & Consent",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Persistence after refusal = disregarding boundaries.",
         "<strong>❌ Not quite</strong><br>Work hours don't matter—context and consent do.",
@@ -510,6 +729,7 @@
       options: ["Friendly", "Informal culture", "Inappropriate behavior", "Only an issue if explicit"],
       correctIndex: 2,
       category: "Digital Workplace",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Context matters—this is not work-related.",
         "<strong>❌ Not quite</strong><br>Culture doesn't override boundaries.",
@@ -525,6 +745,7 @@
       options: ["Friendly", "Normal during travel", "Potential harassment", "Personal matter"],
       correctIndex: 2,
       category: "Extended Workplace",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Ignoring hesitation = red flag.",
         "<strong>❌ Not quite</strong><br>Travel ≠ relaxed boundaries.",
@@ -540,6 +761,7 @@
       options: ["Harmless", "Fine if no one objects", "Inappropriate behavior", "Depends on culture"],
       correctIndex: 2,
       category: "Digital Workplace",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Humor ≠ harmless when it makes colleagues uncomfortable.",
         "<strong>❌ Not quite</strong><br>Silence ≠ comfort. People may not feel safe to object.",
@@ -555,6 +777,7 @@
       options: ["A compliment", "Intent matters most", "Inappropriate behavior", "Only if repeated"],
       correctIndex: 2,
       category: "Respectful Communication",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>This crosses into objectification, not professional appreciation.",
         "<strong>❌ Not quite</strong><br>Impact matters more than intent.",
@@ -570,6 +793,7 @@
       options: ["Ignore it", "Gossip about it later", "Support, intervene, or report", "Only act if Fatima asks you to"],
       correctIndex: 2,
       category: "Bystander Responsibility",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Silence enables behavior. Bystanders can make a difference.",
         "<strong>❌ Not quite</strong><br>Gossiping doesn't solve anything—it can make things worse.",
@@ -585,6 +809,7 @@
       options: ["Intent", "Impact", "Repetition", "Visibility"],
       correctIndex: 1,
       category: "Impact vs Intent",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not enough</strong><br>Good intentions don't erase the harm caused. Intent alone is not a defense.",
         "<strong>✅ Correct!</strong><br>If it makes someone uncomfortable, it matters—regardless of intent.",
@@ -600,20 +825,38 @@
       options: ["Ignore it", "Handle it himself", "Report it", "Only act if it gets physical"],
       correctIndex: 2,
       category: "Third-Party Harassment",
+      noShuffle: false,
       optionFeedback: [
         "<strong>❌ Not quite</strong><br>Ignoring allows escalation. Discomfort is valid and worth reporting.",
         "<strong>❌ Not quite</strong><br>This is not Ramesh's burden alone—he has the right to support.",
         "<strong>✅ Correct!</strong><br>POSH applies at client sites and includes third-party behavior.",
         "<strong>❌ Not quite</strong><br>It doesn't need to escalate to physical contact to be reportable."
       ],
-      insight: "POSH applies at client sites and includes third parties.<br>👉 You can report to: <strong>posh@padcarelabs.com</strong>"
+      insight: "POSH applies at client sites and includes third parties."
+    },
+    {
+      heading: "🧩 Scenario 11: Where Do You Report?",
+      scenario: `Neha experienced uncomfortable behavior from a colleague but isn't sure how to report it. She feels hesitant to directly approach the Internal Complaints Committee (ICC) and is considering her options.`,
+      question: "Where can Neha raise a POSH concern?",
+      options: ["Email at posh@padcarelabs.com", "Approach any ICC member directly", "Speak to her Manager or HR if she's more comfortable", "Check ICC details on posters and reach out via call/email", "All of the above"],
+      correctIndex: 4,
+      category: "Reporting Channels",
+      noShuffle: true,
+      optionFeedback: [
+        "<strong>⚠️ Partially correct</strong><br>Yes, emailing is one way—but there are multiple ways to raise a concern.",
+        "<strong>⚠️ Partially correct</strong><br>Yes, reaching out to an ICC member is correct, but not the only option available.",
+        "<strong>⚠️ Close, but incomplete</strong><br>You can approach HR or your Manager—but the complaint will still need to be formally routed to the ICC.",
+        "<strong>⚠️ Partially correct</strong><br>Yes, ICC details are shared for easy access—but this is just one of the ways.",
+        "<strong>✅ That's right!</strong><br>There are multiple ways to seek help or raise a POSH concern. Feel free to use any one of them!"
+      ],
+      insight: "At Padcare, you can raise a POSH concern in any way you feel comfortable:<br>• Reach out directly to the Internal Complaints Committee (ICC)<br>• Email <strong>posh@padcarelabs.com</strong><br>• Speak to HR or your Manager, who can guide or escalate the concern<br>👉 What matters most is that you speak up.<br>👉 All formal complaints are handled through the ICC to ensure a fair and confidential process."
     }
   ];
 
   const LEVELS = [
-    { min: 0,  max: 3,  name: "Learner" },
-    { min: 4,  max: 7,  name: "Aware" },
-    { min: 8,  max: 10, name: "Ally" }
+    { min: 0,  max: 4,  name: "Learner" },
+    { min: 5,  max: 8,  name: "Aware" },
+    { min: 9,  max: 11, name: "Ally" }
   ];
 
   let game = { currentQ: 0, xp: 0, streak: 0, maxStreak: 0, answered: false, multiSelected: [], answers: [] };
@@ -632,6 +875,10 @@
   }
 
   function shuffleOptions(q) {
+    // If noShuffle is set, return question as-is without shuffling
+    if (q.noShuffle) {
+      return { ...q };
+    }
     const indexed = q.options.map((text, i) => ({ text, origIdx: i }));
     for (let i = indexed.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -653,7 +900,7 @@
 
     const pct = Math.round(((game.currentQ + 1) / QUESTIONS.length) * 100);
     document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-label').textContent = `Level ${game.currentQ + 1}/10`;
+    document.getElementById('progress-label').textContent = `Level ${game.currentQ + 1}/11`;
     document.getElementById('progress-pct').textContent   = pct + '%';
 
     document.getElementById('q-heading').textContent = q.heading;
@@ -662,7 +909,7 @@
 
     const ul = document.getElementById('q-opts');
     ul.innerHTML = '';
-    ['A', 'B', 'C', 'D'].forEach((ltr, i) => {
+    ['A', 'B', 'C', 'D', 'E'].forEach((ltr, i) => {
       if (!q.options[i]) return;
       const li = document.createElement('li');
       li.className = 'opt';
@@ -741,7 +988,6 @@
       playSound('wrongSound');
     }
 
-    // Wait 1.5 seconds so user can see correct/wrong highlights, then show explanation
     setTimeout(() => showExplanationPopup(isRight, q, chosen), 1500);
   }
 
@@ -805,28 +1051,55 @@
   }
 
   function buildResults() {
-    const score = game.xp;
-    document.getElementById('finalScore').textContent = score;
-    setTimeout(() => { document.getElementById('scoreRing').style.background = `conic-gradient(var(--red) ${score * 36}deg, rgba(207,207,207,0.35) ${score * 36}deg)`; }, 100);
+    const correct = game.xp;
+    const total = QUESTIONS.length;
+    const pct = Math.round((correct / total) * 100);
 
-    const rEl = document.getElementById('resultRating'), rIcon = document.getElementById('resultRatingIcon');
-    const rName = document.getElementById('resultRatingName'), rSub = document.getElementById('resultRatingSub');
+    document.getElementById('finalScore').textContent = pct + '%';
+    document.getElementById('statCorrect').textContent = correct + '/' + total;
+    document.getElementById('statStreak').textContent  = game.maxStreak;
+    document.getElementById('statXP').textContent      = game.xp;
 
-    if (score >= 8) {
-      rEl.className = 'result-rating rating-champion'; rIcon.textContent = '🛡️';
-      rName.textContent = 'POSH Champion'; rSub.textContent = 'You understand boundaries, respect, and responsibility.';
+    // Animate donut
+    setTimeout(() => {
+      const circumference = 2 * Math.PI * 50;
+      const filled = (pct / 100) * circumference;
+      document.getElementById('donutArc').setAttribute('stroke-dasharray', filled + ' ' + circumference);
+    }, 200);
+
+    const heroTitle  = document.getElementById('heroTitle');
+    const heroSub    = document.getElementById('heroSub');
+    const msgIcon    = document.getElementById('messageIcon');
+    const msgTitle   = document.getElementById('messageTitle');
+    const msgBody    = document.getElementById('messageBody');
+    const msgCard    = document.getElementById('messageCard');
+
+    if (pct >= 80) {
+      heroTitle.textContent = 'POSH Champion 🛡️';
+      heroSub.textContent   = 'You demonstrate a strong understanding of workplace safety and respect.';
+      msgCard.querySelector('.message-card-icon').className = 'message-card-icon champion';
+      msgIcon.textContent   = '🏆';
+      msgTitle.textContent  = 'Leading by example';
+      msgBody.innerHTML     = 'You\'re helping build a culture where everyone feels safe and valued. Keep championing respectful behaviour in your workplace!';
       document.getElementById('badge-champion').classList.add('unlocked');
-    } else if (score >= 5) {
-      rEl.className = 'result-rating rating-pro'; rIcon.textContent = '🌱';
-      rName.textContent = 'Aware, but growing'; rSub.textContent = 'You\'re on the right track—keep building awareness.';
+      launchConfetti(); setTimeout(() => playSound('applauseSound'), 400);
+    } else if (pct >= 50) {
+      heroTitle.textContent = 'Awareness Builder 🌱';
+      heroSub.textContent   = 'You\'re on the right track with a solid understanding of respectful behaviour.';
+      msgCard.querySelector('.message-card-icon').className = 'message-card-icon pro';
+      msgIcon.textContent   = '🌱';
+      msgTitle.textContent  = 'Keep growing';
+      msgBody.innerHTML     = 'A little more awareness will help you navigate more nuanced situations with confidence. Review a few of the insights from this quiz to strengthen your understanding.';
       document.getElementById('badge-policy').classList.add('unlocked');
     } else {
-      rEl.className = 'result-rating rating-review'; rIcon.textContent = '📘';
-      rName.textContent = 'Let\'s learn together'; rSub.textContent = 'This is a great starting point—awareness is the first step.';
+      heroTitle.textContent = 'Learning in Progress 📘';
+      heroSub.textContent   = 'You\'re just getting started—and that\'s okay. Every step counts.';
+      msgCard.querySelector('.message-card-icon').className = 'message-card-icon review';
+      msgIcon.textContent   = '📘';
+      msgTitle.textContent  = 'Keep learning';
+      msgBody.innerHTML     = 'We recommend revisiting the POSH policy and training materials to better understand what creates a safe and respectful workplace.';
       document.getElementById('badge-respect').classList.add('unlocked');
     }
-
-    if (score >= 8) { launchConfetti(); setTimeout(() => playSound('applauseSound'), 400); }
   }
 
   function launchConfetti() {
