@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>POSH Awareness · Padcare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0e;
+  --ink2:#161618;
+  --ink3:#1e1e21;
+  --ink4:#26262b;
+  --ink5:#2e2e35;
+  --line:#ffffff0f;
+  --line2:#ffffff18;
+  --line3:#ffffff28;
+  --gold:#c9a96e;
+  --gold2:#e8c987;
+  --gold-dim:#c9a96e33;
+  --white:#f5f3ef;
+  --muted:#7a7a85;
+  --muted2:#5a5a65;
+  --green:#4caf82;
+  --green-bg:#4caf8215;
+  --red:#e05a5a;
+  --red-bg:#e05a5a15;
+  --amber:#e8a84a;
+  --amber-bg:#e8a84a15;
+  --r:12px;
+  --r2:18px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html{font-size:16px;scroll-behavior:smooth;overflow-x:hidden}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--ink);
+  color:var(--white);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% -10%,#c9a96e0a 0%,transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 110%,#c9a96e07 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1}
+
+.screen{display:none;min-height:100vh;padding:clamp(24px,5vw,48px) clamp(16px,5vw,24px) 80px;animation:screenIn .5s var(--ease) both}
+.screen.active{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+.col{width:100%;max-width:560px;margin:0 auto}
+
+/* LOGO */
+.logo-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(32px,6vw,56px)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:32px;height:32px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.brand-mark svg{width:16px;height:16px;fill:var(--gold)}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--white);letter-spacing:.03em}
+.badge-pill{font-size:.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);border-radius:99px;padding:4px 12px}
+
+/* DIVIDER */
+.rule{width:100%;height:1px;background:var(--line);margin:clamp(20px,4vw,32px) 0}
+
+/* TYPOGRAPHY */
+.eyebrow{font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.display{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,7vw,3.8rem);font-weight:500;line-height:1.08;letter-spacing:-.02em;color:var(--white)}
+.display em{font-style:italic;color:var(--gold)}
+.h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:500;line-height:1.2;color:var(--white)}
+.body{font-size:.9rem;font-weight:300;line-height:1.75;color:var(--muted);max-width:44ch}
+.caption{font-size:.7rem;font-weight:400;color:var(--muted2);letter-spacing:.04em}
+
+/* BUTTON */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:var(--r);font-family:'Outfit',sans-serif;font-weight:500;cursor:pointer;transition:all .25s var(--ease);position:relative;overflow:hidden;width:100%}
+.btn-gold{background:var(--gold);color:#0d0a04;font-size:.875rem;padding:14px 28px;letter-spacing:.02em}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 12px 32px #c9a96e30}
+.btn-ghost{background:transparent;color:var(--white);font-size:.875rem;padding:13px 28px;border:1px solid var(--line3);letter-spacing:.02em}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.btn-icon{width:28px;height:28px;background:rgba(0,0,0,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+/* FORM */
+.field-wrap{margin-bottom:20px}
+.field-label{display:block;font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.field{width:100%;background:var(--ink3);border:1px solid var(--line2);border-radius:var(--r);padding:13px 16px;font-family:'Outfit',sans-serif;font-size:.9rem;color:var(--white);outline:none;transition:border-color .2s}
+.field::placeholder{color:var(--muted2)}
+.field:focus{border-color:var(--gold)}
+.field.err{border-color:var(--red)}
+.err-msg{font-size:.72rem;color:var(--red);margin-top:6px;display:none}
+.err-msg.show{display:block}
+
+/* PANEL */
+.panel{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r2);padding:clamp(24px,5vw,40px);position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+/* HUD */
+.hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.hud-cell{background:var(--ink2);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.hud-lbl{font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2)}
+.hud-val{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--white);line-height:1}
+.hud-val.gold{color:var(--gold)}
+.hud-val.green{color:var(--green)}
+
+/* PROGRESS */
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-info{font-size:.7rem;font-weight:500;color:var(--muted)}
+.prog-num{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:600;color:var(--gold)}
+.prog-track{height:2px;background:var(--line2);border-radius:99px;overflow:hidden;margin-bottom:24px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .6s var(--ease)}
+
+/* Q CARD */
+.q-panel{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r2);padding:clamp(22px,5vw,36px);position:relative;overflow:hidden;animation:cardIn .4s var(--ease) both}
+.q-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.scenario-block{background:var(--ink3);border-left:2px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:22px;font-size:.875rem;line-height:1.7;color:var(--muted)}
+.scenario-block em{color:var(--white);font-style:italic;font-family:'Cormorant Garamond',serif;font-size:1rem}
+
+.q-text{font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,3.5vw,1.3rem);font-weight:500;line-height:1.45;margin-bottom:20px;color:var(--white)}
+
+/* OPTIONS */
+.opts{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:var(--r);cursor:pointer;transition:all .2s var(--ease);animation:optIn .3s var(--ease) both;background:transparent}
+@keyframes optIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.opt:hover:not(.locked){border-color:var(--line3);background:var(--ink3);transform:translateX(3px)}
+.opt.selected,.opt.multi-sel{border-color:var(--gold);background:var(--gold-dim)}
+.opt.correct{border-color:var(--green);background:var(--green-bg)}
+.opt.wrong{border-color:var(--red);background:var(--red-bg)}
+.opt.locked{cursor:default;transform:none!important}
+.opt-key{width:28px;height:28px;min-width:28px;border-radius:7px;background:var(--ink4);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s;letter-spacing:.04em}
+.opt.selected .opt-key,.opt.multi-sel .opt-key{background:var(--gold);color:#0d0a04}
+.opt.correct .opt-key{background:var(--green);color:var(--ink)}
+.opt.wrong .opt-key{background:var(--red);color:var(--white)}
+.opt-text{font-size:.865rem;line-height:1.55;flex:1;color:var(--white);font-weight:300}
+.opt.correct .opt-text{color:var(--green)}
+.opt.wrong .opt-text{color:var(--red)}
+
+/* ANIMATIONS */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}10%{transform:translateX(-10px)}20%{transform:translateX(10px)}30%{transform:translateX(-8px)}40%{transform:translateX(8px)}50%{transform:translateX(-5px)}60%{transform:translateX(5px)}70%{transform:translateX(-3px)}80%{transform:translateX(3px)}
+}
+.shake{animation:shake .6s var(--ease) both;border-color:var(--red)!important}
+@keyframes correctPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 6px #4caf8218}}
+.correct-pulse{animation:correctPulse .9s ease}
+
+/* FLOATING FEEDBACK */
+#floatFeedback{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-60%) scale(.8);
+  font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;
+  padding:10px 22px;border-radius:12px;
+  opacity:0;pointer-events:none;z-index:9999;
+  transition:all .2s var(--ease);
+  backdrop-filter:blur(8px);
+}
+#floatFeedback.xp{background:#c9a96e;color:#0d0a04}
+#floatFeedback.wrong{background:var(--red);color:var(--white)}
+#floatFeedback.show{opacity:1;transform:translate(-50%,-80%) scale(1)}
+
+/* MODAL */
+#modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,10,12,.85);z-index:9000;
+  align-items:center;justify-content:center;
+  padding:16px;backdrop-filter:blur(6px);
+}
+#modal.open{display:flex}
+.modal-box{
+  background:var(--ink2);border:1px solid var(--line2);border-radius:var(--r2);
+  padding:32px 28px;width:100%;max-width:460px;
+  animation:popIn .4s var(--ease) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-box::before{content:'';position:absolute;pointer-events:none}
+.modal-verdict{font-size:2.2rem;margin-bottom:10px;text-align:center}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;margin-bottom:14px;text-align:center}
+.modal-title.ok{color:var(--green)}
+.modal-title.no{color:var(--red)}
+.opt-feedback{font-size:.87rem;line-height:1.6;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-weight:300}
+.opt-feedback.ok{background:var(--green-bg);color:var(--green)}
+.opt-feedback.no{background:var(--red-bg);color:var(--red)}
+.opt-feedback.warn{background:var(--amber-bg);color:var(--amber)}
+.insight-block{border-left:2px solid var(--gold);padding:12px 14px;background:var(--ink3);border-radius:0 8px 8px 0;margin-bottom:20px}
+.insight-lbl{font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.insight-text{font-size:.85rem;line-height:1.65;color:var(--muted);font-weight:300}
+.insight-text strong{color:var(--white);font-weight:500}
+
+/* RESULTS */
+.results-hero{text-align:center;padding:clamp(28px,5vw,44px) 24px clamp(24px,4vw,36px);background:var(--ink2);border:1px solid var(--line);border-radius:var(--r2);margin-bottom:14px;position:relative;overflow:hidden}
+.results-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.score-ring-wrap{position:relative;width:130px;height:130px;margin:0 auto 20px}
+.score-ring-wrap svg{position:absolute;top:0;left:0}
+.score-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-big{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:600;color:var(--white);line-height:1}
+.score-of{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-top:2px}
+.result-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,4vw,1.8rem);font-weight:500;margin-bottom:6px}
+.result-sub{font-size:.85rem;font-weight:300;color:var(--muted);max-width:38ch;margin:0 auto;line-height:1.65}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:18px 12px;text-align:center}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;line-height:1;margin-bottom:4px}
+.stat-val.a{color:var(--gold)}
+.stat-val.b{color:var(--green)}
+.stat-val.c{color:var(--white)}
+.stat-lbl{font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2)}
+
+.msg-card{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px;display:flex;gap:14px;align-items:flex-start}
+.msg-icon{width:38px;height:38px;border-radius:10px;background:var(--gold-dim);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.msg-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;margin-bottom:4px}
+.msg-body{font-size:.83rem;font-weight:300;color:var(--muted);line-height:1.65}
+
+.badges-panel{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+.badges-lbl{font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:14px}
+.badges-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge-tile{border:1px solid var(--line);border-radius:12px;padding:16px 8px;text-align:center;filter:grayscale(1);opacity:.25;transition:all .5s var(--ease)}
+.badge-tile.lit{filter:none;opacity:1;border-color:#c9a96e55;background:linear-gradient(135deg,var(--gold-dim),transparent)}
+.badge-ico{font-size:1.6rem;margin-bottom:6px;display:block}
+.badge-name{font-size:.65rem;font-weight:500;color:var(--muted);line-height:1.3}
+.badge-tile.lit .badge-name{color:var(--white)}
+
+/* CONFETTI */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* FEEDBACK SCREEN */
+.slider-row{display:flex;align-items:center;gap:14px;margin-top:10px}
+input[type=range]{flex:1;appearance:none;height:2px;background:var(--line2);border-radius:99px;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 0 4px var(--gold-dim)}
+.slider-val{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--gold);min-width:24px;text-align:center}
+
+.success-block{text-align:center;padding:40px 20px}
+.success-icon{font-size:3rem;margin-bottom:16px;display:block}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:500;margin-bottom:10px}
+.success-sub{font-size:.875rem;font-weight:300;color:var(--muted);line-height:1.7}
+
+/* STEP DOTS */
+.dots{display:flex;gap:6px;justify-content:center;margin-top:32px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:all .3s}
+.dot.on{background:var(--gold);transform:scale(1.4)}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .opt{padding:11px 12px;gap:11px}
+  .opt-text{font-size:.82rem}
+  .modal-box{padding:24px 18px}
+  .results-hero{padding:24px 18px}
+  .stats-grid{gap:8px}
+  .stat-card{padding:14px 8px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="floatFeedback"></div>
+  <div id="confetti"></div>
+
+  <!-- MODAL -->
+  <div id="modal">
+    <div class="modal-box">
+      <div class="modal-verdict" id="mVerdict"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="opt-feedback" id="mOptFb"></div>
+      <div class="insight-block">
+        <div class="insight-lbl">Learning Insight</div>
+        <div class="insight-text" id="mInsight"></div>
+      </div>
+      <button class="btn btn-gold" onclick="closeModal()">Continue</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: TITLE -->
+  <div id="s-title" class="screen active">
+    <div class="col">
+      <div class="logo-bar">
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v5c0 3.3 2.6 5.4 6 6 3.4-.6 6-2.7 6-6V5L8 2z"/></svg></div>
+          <span class="brand-name">Padcare</span>
+        </div>
+        <span class="badge-pill">POSH</span>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <div class="eyebrow">Awareness Training</div>
+        <div class="display" style="margin-bottom:18px">Workplace<br><em>Safety</em> Quiz</div>
+        <p class="body">Eleven real-world scenarios to sharpen your understanding of respectful, safe professional environments.</p>
+      </div>
+
+      <div class="rule"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px">
+        <div style="background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gold)">11</div>
+          <div style="font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-top:2px">Scenarios</div>
+        </div>
+        <div style="background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gold)">~5</div>
+          <div style="font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-top:2px">Minutes</div>
+        </div>
+        <div style="background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gold)">XP</div>
+          <div style="font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-top:2px">Gamified</div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" onclick="show('s-profile')">Begin Quiz &rarr;</button>
+
+      <div class="dots" style="margin-top:28px">
+        <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: PROFILE -->
+  <div id="s-profile" class="screen">
+    <div class="col">
+      <div class="logo-bar">
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v5c0 3.3 2.6 5.4 6 6 3.4-.6 6-2.7 6-6V5L8 2z"/></svg></div>
+          <span class="brand-name">Padcare</span>
+        </div>
+        <span class="badge-pill">Step 1 of 2</span>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">Before we begin</div>
+        <div class="h2" style="margin-bottom:10px">Who's taking the quiz?</div>
+        <p class="body" style="margin-bottom:28px">Enter your name to personalise your experience.</p>
+
+        <div class="field-wrap">
+          <label class="field-label" for="pname">Your Name</label>
+          <input class="field" type="text" id="pname" placeholder="Enter your full name" autocomplete="off"/>
+          <div class="err-msg" id="pname-err">Please enter your name to continue.</div>
+        </div>
+
+        <button class="btn btn-gold" onclick="goQuiz()" style="margin-top:8px">Start Quiz &rarr;</button>
+      </div>
+
+      <div class="dots" style="margin-top:28px">
+        <div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: QUIZ -->
+  <div id="s-quiz" class="screen">
+    <div class="col">
+      <div class="logo-bar" style="margin-bottom:16px">
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v5c0 3.3 2.6 5.4 6 6 3.4-.6 6-2.7 6-6V5L8 2z"/></svg></div>
+          <span class="brand-name">Padcare</span>
+        </div>
+        <div id="hud-level" style="font-size:.7rem;font-weight:500;color:var(--gold);letter-spacing:.06em">Rookie</div>
+      </div>
+
+      <div class="hud">
+        <div class="hud-cell">
+          <div class="hud-lbl">XP</div>
+          <div class="hud-val gold" id="hxp">0</div>
+        </div>
+        <div class="hud-cell" style="text-align:center">
+          <div class="hud-lbl">Streak</div>
+          <div class="hud-val" id="hstreak">0</div>
+        </div>
+        <div class="hud-cell" style="text-align:right">
+          <div class="hud-lbl">Progress</div>
+          <div class="hud-val green" id="hprog">1/11</div>
+        </div>
+      </div>
+
+      <div class="prog-row">
+        <span class="prog-info" id="prog-label">Scenario 1 of 11</span>
+        <span class="prog-num" id="prog-pct">9%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:9%"></div></div>
+
+      <div class="q-panel" id="qcard">
+        <div class="eyebrow" id="q-head">Scenario 1</div>
+        <div class="scenario-block" id="q-scenario"></div>
+        <div class="q-text" id="q-text"></div>
+        <ul class="opts" id="q-opts"></ul>
+        <button class="btn btn-ghost" id="btn-confirm" style="display:none" disabled onclick="confirmMulti()">Confirm Selection &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: RESULTS -->
+  <div id="s-results" class="screen">
+    <div class="col">
+      <div class="logo-bar">
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v5c0 3.3 2.6 5.4 6 6 3.4-.6 6-2.7 6-6V5L8 2z"/></svg></div>
+          <span class="brand-name">Padcare</span>
+        </div>
+        <span class="badge-pill">Complete</span>
+      </div>
+
+      <div class="results-hero">
+        <div class="score-ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="54" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+            <circle id="ring-arc" cx="65" cy="65" r="54" fill="none" stroke="var(--gold)" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="0 339.3" stroke-dashoffset="84.8"
+              style="transition:stroke-dasharray 1.4s cubic-bezier(.4,0,.2,1);transform-origin:center"/>
+          </svg>
+          <div class="score-ring-inner">
+            <div class="score-big" id="rscore">0%</div>
+            <div class="score-of">Score</div>
+          </div>
+        </div>
+        <div class="result-title" id="rtitle"></div>
+        <div class="result-sub" id="rsub"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val a" id="rcorrect">0</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-card"><div class="stat-val b" id="rstreak">0</div><div class="stat-lbl">Best Streak</div></div>
+        <div class="stat-card"><div class="stat-val c" id="rxp">0</div><div class="stat-lbl">XP Earned</div></div>
+      </div>
+
+      <div class="msg-card" id="msgCard">
+        <div class="msg-icon" id="msgIcon">🏆</div>
+        <div>
+          <div class="msg-title" id="msgTitle"></div>
+          <div class="msg-body" id="msgBody"></div>
+        </div>
+      </div>
+
+      <div class="badges-panel">
+        <div class="badges-lbl">Achievements</div>
+        <div class="badges-row">
+          <div class="badge-tile" id="b1"><span class="badge-ico">📘</span><div class="badge-name">Learning in Progress</div></div>
+          <div class="badge-tile" id="b2"><span class="badge-ico">🌱</span><div class="badge-name">Awareness Builder</div></div>
+          <div class="badge-tile" id="b3"><span class="badge-ico">🛡️</span><div class="badge-name">POSH Champion</div></div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" onclick="show('s-feedback')">Share Feedback &rarr;</button>
+
+      <div class="dots" style="margin-top:28px">
+        <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: FEEDBACK -->
+  <div id="s-feedback" class="screen">
+    <div class="col">
+      <div class="logo-bar">
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v5c0 3.3 2.6 5.4 6 6 3.4-.6 6-2.7 6-6V5L8 2z"/></svg></div>
+          <span class="brand-name">Padcare</span>
+        </div>
+        <span class="badge-pill">Final Step</span>
+      </div>
+
+      <div class="panel" id="fbPanel">
+        <div class="eyebrow">Reflection</div>
+        <div class="h2" style="margin-bottom:10px">Share your feedback</div>
+        <p class="body" style="margin-bottom:28px">Help us improve future awareness sessions.</p>
+
+        <div class="field-wrap">
+          <label class="field-label">How informative was this session? (1–10)</label>
+          <div class="slider-row">
+            <input type="range" id="sl" min="1" max="10" value="8" step="1" oninput="document.getElementById('slv').textContent=this.value"/>
+            <div class="slider-val" id="slv">8</div>
+          </div>
+        </div>
+
+        <button class="btn btn-gold" onclick="submitFb()" style="margin-top:16px">Submit Completion &rarr;</button>
+      </div>
+
+      <div class="success-block" id="successBlock" style="display:none">
+        <span class="success-icon">🛡️</span>
+        <div class="success-title">Completion Recorded</div>
+        <p class="success-sub">Thank you for contributing to a safe,<br>respectful workplace at Padcare.</p>
+      </div>
+
+      <div class="dots" style="margin-top:28px">
+        <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const Q=[
+  {
+    head:"Scenario 1 · Power Play",
+    scene:`Ankit, a team lead, tells his reportee Sana:<br><em>"We should spend more time together outside work… it'll help me understand you better for your growth."</em><br>Sana feels pressured.`,
+    q:"What is this?",
+    opts:["Mentorship","Harmless suggestion","Sexual harassment","Miscommunication"],
+    ans:2,noShuffle:false,cat:"Misuse of Authority",
+    fb:["<strong>Not quite.</strong> Mentorship should be professional and comfortable for both sides.","<strong>Think deeper.</strong> The power difference makes this uncomfortable and inappropriate.","<strong>Correct.</strong> You've identified a misuse of authority.","<strong>Not quite.</strong> This goes beyond miscommunication—it links career growth with personal time."],
+    insight:"A manager is in a position of power. Suggestions that link career growth with personal time can feel coercive—even if not explicitly stated. If someone feels pressured, it's a red flag."
+  },
+  {
+    head:"Scenario 2 · Just a Joke",
+    scene:`Priya is in a weekly team meeting. Arjun jokes,<br><em>"Priya, you've dressed up today—big client call or just trying to impress someone?"</em><br>Some laugh. Priya smiles awkwardly but stays quiet.`,
+    q:"What is this?",
+    opts:["Harmless joke","Okay if she didn't object","Unwelcome behavior that may be harassment","Only an issue if repeated"],
+    ans:2,noShuffle:false,cat:"Unwelcome Behavior",
+    fb:["<strong>Not quite.</strong> Humor is subjective—but discomfort makes it inappropriate.","<strong>Not quite.</strong> Silence does not equal consent. People often don't speak up in public.","<strong>Correct.</strong> This is unwelcome and inappropriate.","<strong>Close.</strong> Repetition makes it worse—but even one instance can matter."],
+    insight:"Impact matters more than intent. Even 'jokes' can cross the line if they make someone uncomfortable."
+  },
+  {
+    head:"Scenario 3 · Persistent Invites",
+    scene:`Karan has asked Meera out for coffee twice. She politely declined both times.<br>A few days later he messages:<br><em>"Come on, don't be so serious. Just one coffee?"</em>`,
+    q:"What is this?",
+    opts:["Friendly persistence","Acceptable outside work","Unwelcome behavior","Not harassment unless reported"],
+    ans:2,noShuffle:false,cat:"Boundaries & Consent",
+    fb:["<strong>Not quite.</strong> Persistence after refusal means disregarding boundaries.","<strong>Not quite.</strong> Work hours don't matter—context and consent do.","<strong>Correct.</strong> This is unwelcome behavior.","<strong>Not quite.</strong> Reporting doesn't define harassment—behavior does."],
+    insight:"No means no—even outside the office. Continuing after a clear refusal is a boundary violation."
+  },
+  {
+    head:"Scenario 4 · WFH Messages",
+    scene:`During WFH, Neha's manager Rahul messages her late at night:<br><em>"You looked really nice on the call today :)"</em><br><em>"Miss our chats after work hours"</em><br>Neha feels uncomfortable but isn't sure if it's "serious enough."`,
+    q:"What is this?",
+    opts:["Friendly","Informal culture","Inappropriate behavior","Only an issue if explicit"],
+    ans:2,noShuffle:false,cat:"Digital Workplace",
+    fb:["<strong>Not quite.</strong> Context matters—this is not work-related.","<strong>Not quite.</strong> Culture doesn't override boundaries.","<strong>Correct.</strong> Late-night personal messages from a manager cross professional boundaries.","<strong>Close.</strong> It doesn't have to be explicit to be uncomfortable or inappropriate."],
+    insight:"WFH is still the workplace. Digital communication is still professional communication. Boundaries apply everywhere."
+  },
+  {
+    head:"Scenario 5 · Offsite Boundary",
+    scene:`At an offsite in Bangalore, after dinner, Vikram insists on walking Aisha back to her hotel room.<br>At the door, he says,<em> "Let's hang out a bit more"</em> and tries to step inside despite her hesitation.`,
+    q:"What is this?",
+    opts:["Friendly gesture","Normal during travel","Potential harassment","A personal matter"],
+    ans:2,noShuffle:false,cat:"Extended Workplace",
+    fb:["<strong>Not quite.</strong> Ignoring hesitation is a red flag.","<strong>Not quite.</strong> Work travel does not mean relaxed boundaries.","<strong>Correct.</strong> Ignoring hesitation and invading personal space is inappropriate.","<strong>Not quite.</strong> Work travel is still workplace context."],
+    insight:"Offsites are workspaces. Consent is key—and hesitation is always a 'No'."
+  },
+  {
+    head:"Scenario 6 · WhatsApp Meme",
+    scene:`In a team WhatsApp group, Rohit shares a sexually suggestive meme.<br>Some react with emojis; others stay silent.<br>Ananya feels uncomfortable but doesn't respond.`,
+    q:"What is this?",
+    opts:["Harmless","Fine if no one objects","Inappropriate behavior","Depends on culture"],
+    ans:2,noShuffle:false,cat:"Digital Workplace",
+    fb:["<strong>Not quite.</strong> Humor is not harmless when it makes colleagues uncomfortable.","<strong>Not quite.</strong> Silence doesn't mean comfort. People may not feel safe to object.","<strong>Correct.</strong> Sexually suggestive content in work groups is inappropriate.","<strong>Not quite.</strong> Culture doesn't justify behavior that causes discomfort."],
+    insight:"Digital spaces are workplaces too. What you wouldn't say in person, don't post in a work group."
+  },
+  {
+    head:"Scenario 7 · Compliments Gone Wrong",
+    scene:`Siddharth often tells his colleague Pooja:<br><em>"You look hot today"</em> and <em>"That outfit is quite something."</em><br>He says it casually and laughs it off.`,
+    q:"What is this?",
+    opts:["A compliment","Intent matters most","Inappropriate behavior","Only a problem if repeated"],
+    ans:2,noShuffle:false,cat:"Respectful Communication",
+    fb:["<strong>Not quite.</strong> This crosses into objectification, not professional appreciation.","<strong>Not quite.</strong> Impact matters more than intent.","<strong>Correct.</strong> Comments that objectify colleagues are inappropriate.","<strong>Close.</strong> Even one instance can make someone deeply uncomfortable."],
+    insight:"Professional spaces require respectful language. Compliment someone's work, not their body."
+  },
+  {
+    head:"Scenario 8 · Bystander Moment",
+    scene:`During a discussion, Nikhil repeatedly interrupts Fatima and says:<br><em>"Let the guys handle this, it's a tough client."</em><br>You notice Fatima becoming quieter.`,
+    q:"What should you do?",
+    opts:["Ignore it","Gossip about it later","Support, intervene, or report","Only act if Fatima asks you to"],
+    ans:2,noShuffle:false,cat:"Bystander Responsibility",
+    fb:["<strong>Not quite.</strong> Silence enables behavior. Bystanders can make a real difference.","<strong>Not quite.</strong> Gossiping doesn't solve anything and can make things worse.","<strong>Correct.</strong> As a bystander, you can speak up, support Fatima, or escalate.","<strong>Close.</strong> You can proactively support someone even without being explicitly asked."],
+    insight:"Bystanders can shift culture. You don't have to be the target to take action."
+  },
+  {
+    head:"Scenario 9 · Impact vs. Intent",
+    scene:`Aman sends a flirty message to his colleague Isha:<br><em>"Can't focus on work after seeing you today ;)"</em><br>Isha expresses discomfort. Aman replies: <em>"Relax, I didn't mean anything."</em>`,
+    q:"What matters most here?",
+    opts:["Intent","Impact","Repetition","Visibility"],
+    ans:1,noShuffle:false,cat:"Impact vs Intent",
+    fb:["<strong>Not enough.</strong> Good intentions don't erase harm. Intent alone is not a defense.","<strong>Correct.</strong> If it makes someone uncomfortable, it matters—regardless of intent.","<strong>Relevant, but not primary.</strong> Repetition escalates severity, but a single incident already matters.","<strong>Not quite.</strong> Whether others saw it doesn't change the impact on the person affected."],
+    insight:"If it makes someone uncomfortable, it matters. 'I didn't mean it' is not an excuse—impact is what counts."
+  },
+  {
+    head:"Scenario 10 · Field Staff – Client Site",
+    scene:`Ramesh is a service associate at a client office. Another vendor staff member says:<br><em>"Why are you so serious? Smile more, makes you look better."</em><br>Despite Ramesh keeping responses minimal, the person keeps initiating personal conversations.`,
+    q:"What should Ramesh do?",
+    opts:["Ignore it","Handle it himself","Report it","Only act if it gets physical"],
+    ans:2,noShuffle:false,cat:"Third-Party Harassment",
+    fb:["<strong>Not quite.</strong> Ignoring allows escalation. Discomfort is valid and worth reporting.","<strong>Not quite.</strong> This is not Ramesh's burden alone—he has the right to support.","<strong>Correct.</strong> POSH applies at client sites and includes third-party behavior.","<strong>Not quite.</strong> It doesn't need to escalate to physical contact to be reportable."],
+    insight:"POSH applies at client sites and covers third-party behavior. Ramesh has every right to report this."
+  },
+  {
+    head:"Scenario 11 · Reporting Channels",
+    scene:`Neha experienced uncomfortable behavior from a colleague but isn't sure how to report it. She's hesitant to approach the ICC directly and is considering her options.`,
+    q:"Where can Neha raise a POSH concern?",
+    opts:["Email posh@padcarelabs.com","Approach any ICC member directly","Speak to her Manager or HR","Check ICC details on posters","All of the above"],
+    ans:4,noShuffle:true,cat:"Reporting Channels",
+    fb:["<strong>Partially correct.</strong> Emailing is one way—but there are multiple options.","<strong>Partially correct.</strong> Reaching out to an ICC member is correct, but not the only option.","<strong>Close, but incomplete.</strong> HR and Manager can help, but the complaint routes through the ICC.","<strong>Partially correct.</strong> ICC details are shared for easy access—but this is just one way.","<strong>Correct!</strong> There are multiple ways to seek help. Feel free to use any one of them."],
+    insight:"At Padcare, you can raise a POSH concern in any way you feel comfortable:<br><strong>• Reach out to the ICC directly</strong><br><strong>• Email posh@padcarelabs.com</strong><br><strong>• Speak to HR or your Manager</strong><br>What matters most is that you speak up."
+  }
+];
+
+const LEVELS=[{max:3,name:"Rookie"},{max:6,name:"Aware"},{max:9,name:"Ally"},{max:11,name:"Champion"}];
+
+let G={q:0,xp:0,streak:0,maxStreak:0,answered:false,multiSel:[],_cur:null};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goQuiz(){
+  const n=document.getElementById('pname').value.trim();
+  if(!n){document.getElementById('pname-err').classList.add('show');document.getElementById('pname').classList.add('err');return;}
+  show('s-quiz');
+  renderQ();
+}
+
+function shuffle(q){
+  if(q.noShuffle) return{...q};
+  const idx=q.opts.map((t,i)=>({t,i}));
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+  return{...q,opts:idx.map(o=>o.t),fb:idx.map(o=>q.fb[o.i]),ans:idx.findIndex(o=>o.i===q.ans)};
+}
+
+function isMulti(q){return Array.isArray(q.ans)}
+
+function renderQ(){
+  const raw=Q[G.q];
+  const q=shuffle(raw);
+  G._cur=q;G.answered=false;G.multiSel=[];
+
+  const pct=Math.round(((G.q+1)/Q.length)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=`Scenario ${G.q+1} of ${Q.length}`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('hprog').textContent=(G.q+1)+'/'+Q.length;
+
+  document.getElementById('q-head').textContent=q.head;
+  document.getElementById('q-scenario').innerHTML=q.scene;
+  document.getElementById('q-text').textContent=q.q;
+
+  const ul=document.getElementById('q-opts');
+  ul.innerHTML='';
+  ['A','B','C','D','E'].forEach((l,i)=>{
+    if(!q.opts[i])return;
+    const li=document.createElement('li');
+    li.className='opt';
+    li.style.animationDelay=(i*.06)+'s';
+    li.innerHTML=`<span class="opt-key">${l}</span><span class="opt-text">${q.opts[i]}</span>`;
+    if(isMulti(q)) li.addEventListener('click',()=>toggleMulti(i,li));
+    else li.addEventListener('click',()=>pickSingle(i));
+    ul.appendChild(li);
+  });
+
+  const btn=document.getElementById('btn-confirm');
+  if(isMulti(q)){btn.style.display='inline-flex';btn.disabled=true;}
+  else btn.style.display='none';
+
+  const card=document.getElementById('qcard');
+  card.style.animation='none';void card.offsetHeight;card.style.animation='';
+}
+
+function pickSingle(chosen){
+  if(G.answered)return;
+  G.answered=true;
+  const q=G._cur;
+  const right=chosen===q.ans;
+  const els=document.querySelectorAll('.opt');
+  els.forEach((el,i)=>{
+    el.classList.add('locked');
+    if(i===q.ans) el.classList.add('correct');
+    else if(i===chosen&&!right) el.classList.add('wrong');
+  });
+  handleResult(right,q,chosen);
+}
+
+function toggleMulti(idx,li){
+  if(G.answered)return;
+  const p=G.multiSel.indexOf(idx);
+  if(p===-1){G.multiSel.push(idx);li.classList.add('multi-sel');}
+  else{G.multiSel.splice(p,1);li.classList.remove('multi-sel');}
+  document.getElementById('btn-confirm').disabled=G.multiSel.length===0;
+}
+
+function confirmMulti(){
+  if(G.answered)return;
+  G.answered=true;
+  const q=G._cur;
+  const correct=[...q.ans].sort();
+  const chosen=[...G.multiSel].sort();
+  const right=JSON.stringify(chosen)===JSON.stringify(correct);
+  document.querySelectorAll('.opt').forEach((el,i)=>{
+    el.classList.add('locked');el.classList.remove('multi-sel');
+    if(q.ans.includes(i)) el.classList.add('correct');
+    else if(G.multiSel.includes(i)&&!q.ans.includes(i)) el.classList.add('wrong');
+  });
+  handleResult(right,q,chosen);
+}
+
+function handleResult(right,q,chosen){
+  G.answered=true;
+  if(right){G.streak++;G.maxStreak=Math.max(G.maxStreak,G.streak);}
+  else G.streak=0;
+  document.getElementById('hstreak').textContent=G.streak;
+
+  const card=document.getElementById('qcard');
+  card.classList.remove('shake','correct-pulse');
+  void card.offsetWidth;
+  if(right){card.classList.add('correct-pulse');floatPop(true);}
+  else{card.classList.add('shake');floatPop(false);}
+
+  setTimeout(()=>showModal(right,q,Array.isArray(chosen)?chosen[0]:chosen),1400);
+}
+
+function showModal(right,q,chosenIdx){
+  const m=document.getElementById('modal');
+  document.getElementById('mVerdict').textContent=right?'✓':'×';
+  const titleEl=document.getElementById('mTitle');
+  titleEl.textContent=right?'Well done':'Keep learning';
+  titleEl.className=right?'modal-title ok':'modal-title no';
+
+  const fbEl=document.getElementById('mOptFb');
+  const fbText=q.fb[chosenIdx]||'';
+  fbEl.innerHTML=fbText;
+  if(fbText.includes('Correct')) fbEl.className='opt-feedback ok';
+  else if(fbText.includes('Close')||fbText.includes('Relevant')) fbEl.className='opt-feedback warn';
+  else fbEl.className='opt-feedback no';
+
+  document.getElementById('mInsight').innerHTML=q.insight;
+
+  if(right) gainXP();
+
+  m.classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  G.q++;
+  if(G.q>=Q.length) buildResults();
+  else renderQ();
+}
+
+function gainXP(){
+  G.xp++;
+  document.getElementById('hxp').textContent=G.xp;
+  const lv=LEVELS.find(l=>G.xp<=l.max)||LEVELS[LEVELS.length-1];
+  document.getElementById('hud-level').textContent=lv.name;
+}
+
+function floatPop(right){
+  const el=document.getElementById('floatFeedback');
+  el.textContent=right?'+1 XP':'Not quite';
+  el.className=right?'xp':'wrong';
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1100);
+}
+
+function buildResults(){
+  const correct=G.xp;
+  const total=Q.length;
+  const pct=Math.round((correct/total)*100);
+
+  document.getElementById('rscore').textContent=pct+'%';
+  document.getElementById('rcorrect').textContent=correct+'/'+total;
+  document.getElementById('rstreak').textContent=G.maxStreak;
+  document.getElementById('rxp').textContent=G.xp;
+
+  setTimeout(()=>{
+    const circ=2*Math.PI*54;
+    const filled=(pct/100)*circ;
+    document.getElementById('ring-arc').setAttribute('stroke-dasharray',filled+' '+circ);
+  },250);
+
+  const rtitle=document.getElementById('rtitle');
+  const rsub=document.getElementById('rsub');
+  const msgIcon=document.getElementById('msgIcon');
+  const msgTitle=document.getElementById('msgTitle');
+  const msgBody=document.getElementById('msgBody');
+
+  if(pct>=80){
+    rtitle.textContent='POSH Champion';
+    rsub.textContent='You demonstrate a strong understanding of workplace safety and respect.';
+    msgIcon.textContent='🏆';
+    msgTitle.textContent='Leading by example';
+    msgBody.textContent="You're helping build a culture where everyone feels safe and valued. Keep championing respectful behaviour.";
+    document.getElementById('b3').classList.add('lit');
+    confetti();
+  } else if(pct>=50){
+    rtitle.textContent='Awareness Builder';
+    rsub.textContent="You're on the right track with a solid foundation in respectful workplace behaviour.";
+    msgIcon.textContent='🌱';
+    msgTitle.textContent='Keep growing';
+    msgBody.textContent='A little more awareness will help you navigate nuanced situations. Review the insights from this quiz.';
+    document.getElementById('b2').classList.add('lit');
+  } else {
+    rtitle.textContent='Learning in Progress';
+    rsub.textContent="You're just getting started—and that's okay. Every step toward awareness counts.";
+    msgIcon.textContent='📘';
+    msgTitle.textContent='Keep learning';
+    msgBody.textContent='We recommend revisiting the POSH policy and training materials to strengthen your understanding.';
+    document.getElementById('b1').classList.add('lit');
+  }
+
+  show('s-results');
+}
+
+function confetti(){
+  const w=document.getElementById('confetti');w.innerHTML='';
+  const c=['#c9a96e','#e8c987','#f5f3ef','#4caf82','#4A154B'];
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div');
+    const sz=5+Math.random()*9;
+    p.style.cssText=`position:absolute;top:-12px;left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${c[Math.floor(Math.random()*c.length)]};animation:fall ${1.4+Math.random()*2.2}s linear ${Math.random()*.8}s forwards;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    w.appendChild(p);
+  }
+}
+
+function submitFb(){
+  document.getElementById('fbPanel').style.display='none';
+  document.getElementById('successBlock').style.display='block';
+}
+</script>
+</body>
+</html>
